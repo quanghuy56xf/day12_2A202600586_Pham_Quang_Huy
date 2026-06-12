@@ -4,16 +4,26 @@ Production Readiness Checker
 Tự động kiểm tra project có đủ điều kiện deploy chưa.
 Chạy: python check_production_ready.py
 
-Output: checklist với ✅ / ❌ cho từng item.
+Output: checklist với [OK] / [FAIL] cho từng item.
 """
 import os
 import sys
-import json
-import subprocess
+
+
+def _configure_stdout() -> None:
+    """Tránh UnicodeEncodeError trên Windows terminal (cp1252)."""
+    if hasattr(sys.stdout, "reconfigure"):
+        try:
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:
+            pass
+
+
+_configure_stdout()
 
 
 def check(name: str, passed: bool, detail: str = "") -> dict:
-    icon = "✅" if passed else "❌"
+    icon = "[OK]" if passed else "[FAIL]"
     print(f"  {icon} {name}" + (f" — {detail}" if detail else ""))
     return {"name": name, "passed": passed}
 
@@ -27,7 +37,7 @@ def run_checks():
     print("=" * 55)
 
     # ── Files ──────────────────���───────────────────
-    print("\n📁 Required Files")
+    print("\n[Files] Required Files")
     results.append(check("Dockerfile exists",
                          os.path.exists(os.path.join(base, "Dockerfile"))))
     results.append(check("docker-compose.yml exists",
@@ -43,7 +53,7 @@ def run_checks():
                          os.path.exists(os.path.join(base, "render.yaml"))))
 
     # ── Security ──────────────────────────────────���
-    print("\n🔒 Security")
+    print("\n[Security]")
 
     # Check .env not tracked
     env_file = os.path.join(base, ".env")
@@ -75,7 +85,7 @@ def run_checks():
                          str(secrets_found) if secrets_found else ""))
 
     # ── API Endpoints ────────────────────────────��─
-    print("\n🌐 API Endpoints (code check)")
+    print("\n[API] Endpoints (code check)")
     main_py = os.path.join(base, "app", "main.py")
     if os.path.exists(main_py):
         content = open(main_py).read()
@@ -95,7 +105,7 @@ def run_checks():
         results.append(check("app/main.py exists", False, "Create app/main.py!"))
 
     # ── Docker ─────────────────────────────────────
-    print("\n🐳 Docker")
+    print("\n[Docker]")
     dockerfile = os.path.join(base, "Dockerfile")
     if os.path.exists(dockerfile):
         content = open(dockerfile).read()
@@ -125,13 +135,13 @@ def run_checks():
     print(f"  Result: {passed}/{total} checks passed ({pct}%)")
 
     if pct == 100:
-        print("  🎉 PRODUCTION READY! Deploy nào!")
+        print("  PRODUCTION READY! Deploy nào!")
     elif pct >= 80:
-        print("  ✅ Almost there! Fix the ❌ items above.")
+        print("  Almost there! Fix the [FAIL] items above.")
     elif pct >= 60:
-        print("  ⚠️  Good progress. Several items need attention.")
+        print("  Good progress. Several items need attention.")
     else:
-        print("  ❌ Not ready. Review the checklist carefully.")
+        print("  Not ready. Review the checklist carefully.")
 
     print("=" * 55 + "\n")
     return pct == 100

@@ -24,7 +24,8 @@ services:
       - key: RATE_LIMIT_PER_MINUTE
         value: "10"
 
-  - type: redis
+  - type: keyvalue
     name: agent-cache
     plan: free
     maxmemoryPolicy: allkeys-lru
+    ipAllowList: []

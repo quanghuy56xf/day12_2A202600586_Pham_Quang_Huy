@@ -5,6 +5,7 @@ Run: python generate_screenshots.py
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import textwrap
@@ -33,6 +34,8 @@ def load_public_url() -> str:
 
 
 def run_cmd(cmd: list[str], cwd: Path | None = None) -> str:
+    env = os.environ.copy()
+    env["PYTHONIOENCODING"] = "utf-8"
     result = subprocess.run(
         cmd,
         cwd=cwd or BASE,
@@ -40,6 +43,7 @@ def run_cmd(cmd: list[str], cwd: Path | None = None) -> str:
         text=True,
         encoding="utf-8",
         errors="replace",
+        env=env,
     )
     return (result.stdout + result.stderr).strip() or f"(exit {result.returncode})"
 
