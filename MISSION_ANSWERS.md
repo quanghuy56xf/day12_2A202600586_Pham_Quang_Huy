@@ -115,23 +115,21 @@ Services: `agent`, `redis`, `nginx`. Agent không expose port trực tiếp; Ngi
 
 ### Exercise 3.1: Railway deployment
 
-**Steps thực hiện:**
+- **URL:** https://ai-agent-production-production-0abb.up.railway.app
+- **Dashboard:** https://railway.com/project/9ea5b4b4-dc09-476f-b18e-e2bdc64d0800
+- **Screenshot:** [screenshots/cloud-dashboard.png](screenshots/cloud-dashboard.png), [screenshots/railway-live-test.png](screenshots/railway-live-test.png)
 
-```bash
-npm i -g @railway/cli
-railway login
-cd 06-lab-complete
-railway init
-railway variables set PORT=8000
-railway variables set AGENT_API_KEY=<secret>
-railway variables set REDIS_URL=<redis-url>
-railway up
-railway domain
+**Test results (verified):**
+```
+GET  /health → HTTP 200
+GET  /ready  → HTTP 200 (redis connected)
+POST /ask (no key) → HTTP 401
+POST /ask (with X-API-Key) → HTTP 200
 ```
 
-**URL:** Xem `DEPLOYMENT.md` (local: `http://localhost` qua Docker Compose; cloud: deploy qua Railway/Render blueprint).
+### Exercise 3.2: Render deployment (skipped — dùng Railway)
 
-### Exercise 3.2: Render deployment
+Đã chọn Railway thay Render. So sánh `railway.toml` vs `render.yaml` vẫn áp dụng (xem bảng bên dưới).
 
 **So sánh `render.yaml` vs `railway.toml`:**
 

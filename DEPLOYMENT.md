@@ -70,6 +70,31 @@ POST /ask    → HTTP 200 (with X-API-Key)
 
 https://railway.com/project/9ea5b4b4-dc09-476f-b18e-e2bdc64d0800
 
+## Screenshots
+
+| File | Mô tả |
+|------|-------|
+| [screenshots/docker-compose-running.png](screenshots/docker-compose-running.png) | Docker local |
+| [screenshots/health-check.png](screenshots/health-check.png) | Health check |
+| [screenshots/auth-test.png](screenshots/auth-test.png) | Auth test |
+| [screenshots/rate-limit-test.png](screenshots/rate-limit-test.png) | Rate limit |
+| [screenshots/production-ready-check.png](screenshots/production-ready-check.png) | 20/20 checks |
+| [screenshots/cloud-dashboard.png](screenshots/cloud-dashboard.png) | Railway dashboard |
+| [screenshots/railway-live-test.png](screenshots/railway-live-test.png) | Railway live API tests |
+
+## Pre-Submission Checklist
+
+- [x] Repository public: https://github.com/quanghuy56xf/day12_2A202600586_Pham_Quang_Huy
+- [x] `MISSION_ANSWERS.md` completed
+- [x] `DEPLOYMENT.md` has working public URL
+- [x] Source code in `06-lab-complete/app/`
+- [x] `README.md` setup instructions
+- [x] No `.env` committed (only `.env.example`)
+- [x] No hardcoded secrets in code
+- [x] Public URL accessible and working
+- [x] Screenshots in `screenshots/`
+- [x] Clear commit history
+
 ## Redeploy
 
 ```bash

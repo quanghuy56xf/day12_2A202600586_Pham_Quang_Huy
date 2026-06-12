@@ -1,16 +1,13 @@
-# Screenshots for Day 12 Lab Submission
+# Screenshots — Day 12 Lab Submission
 
-Place screenshots here before submitting:
+| File | Mô tả |
+|------|-------|
+| [docker-compose-running.png](docker-compose-running.png) | Docker services local |
+| [health-check.png](health-check.png) | GET /health local |
+| [auth-test.png](auth-test.png) | Auth 401 vs 200 local |
+| [rate-limit-test.png](rate-limit-test.png) | Rate limit 429 |
+| [production-ready-check.png](production-ready-check.png) | 20/20 checks |
+| [cloud-dashboard.png](cloud-dashboard.png) | Railway dashboard status |
+| [railway-live-test.png](railway-live-test.png) | Railway public URL tests |
 
-1. **docker-compose-running.png** — output of `docker compose ps`
-2. **health-check.png** — `curl http://localhost/health` response
-3. **auth-test.png** — 401 without API key vs 200 with key
-4. **cloud-dashboard.png** — Railway or Render deployment dashboard (optional for cloud deploy)
-
-Generate locally after running:
-
-```bash
-cd 06-lab-complete
-docker compose up --build -d
-curl http://localhost/health
-```
+Tạo lại: `python 06-lab-complete/generate_screenshots.py`
