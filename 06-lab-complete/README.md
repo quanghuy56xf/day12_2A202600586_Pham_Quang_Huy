@@ -1,100 +1,93 @@
 # Lab 12 — Complete Production Agent
 
-Kết hợp TẤT CẢ những gì đã học trong 1 project hoàn chỉnh.
+Production-ready AI agent kết hợp tất cả concepts Day 12.
 
-## Checklist Deliverable
-
-- [x] Dockerfile (multi-stage, < 500 MB)
-- [x] docker-compose.yml (agent + redis)
-- [x] .dockerignore
-- [x] Health check endpoint (`GET /health`)
-- [x] Readiness endpoint (`GET /ready`)
-- [x] API Key authentication
-- [x] Rate limiting
-- [x] Cost guard
-- [x] Config từ environment variables
-- [x] Structured logging
-- [x] Graceful shutdown
-- [x] Public URL ready (Railway / Render config)
-
----
-
-## Cấu Trúc
+## Cấu trúc
 
 ```
 06-lab-complete/
 ├── app/
-│   ├── main.py         # Entry point — kết hợp tất cả
-│   ├── config.py       # 12-factor config
-│   ├── auth.py         # API Key + JWT
-│   ├── rate_limiter.py # Rate limiting
-│   └── cost_guard.py   # Budget protection
-├── Dockerfile          # Multi-stage, production-ready
-├── docker-compose.yml  # Full stack
-├── railway.toml        # Deploy Railway
-├── render.yaml         # Deploy Render
-├── .env.example        # Template
-├── .dockerignore
-└── requirements.txt
+│   ├── main.py           # FastAPI entry point
+│   ├── config.py         # 12-factor config
+│   ├── auth.py           # API Key authentication
+│   ├── rate_limiter.py   # Redis sliding window (10 req/min)
+│   ├── cost_guard.py     # Monthly budget guard ($10/user)
+│   └── session.py        # Conversation history (Redis)
+├── utils/mock_llm.py
+├── Dockerfile            # Multi-stage, non-root, HEALTHCHECK
+├── docker-compose.yml    # agent + redis + nginx
+├── nginx.conf
+├── railway.toml
+├── render.yaml
+├── .env.example
+└── check_production_ready.py
 ```
 
----
-
-## Chạy Local
+## Chạy local (Docker Compose)
 
 ```bash
-# 1. Setup
-cp .env.example .env
+cd 06-lab-complete
+cp .env.example .env.local
+# Chỉnh AGENT_API_KEY trong .env.local nếu cần
 
-# 2. Chạy với Docker Compose
-docker compose up
+docker compose up --build
+```
 
-# 3. Test
+## Test endpoints
+
+```bash
+# Health (public)
 curl http://localhost/health
 
-# 4. Lấy API key từ .env, test endpoint
-API_KEY=$(grep AGENT_API_KEY .env | cut -d= -f2)
-curl -H "X-API-Key: $API_KEY" \
-     -X POST http://localhost/ask \
-     -H "Content-Type: application/json" \
-     -d '{"question": "What is deployment?"}'
+# Ready (public)
+curl http://localhost/ready
+
+# Ask — cần API key
+curl -X POST http://localhost/ask \
+  -H "X-API-Key: lab-secret-key-2026" \
+  -H "Content-Type: application/json" \
+  -d '{"user_id":"test","question":"What is Docker?"}'
+
+# Không có key → 401
+curl -X POST http://localhost/ask \
+  -H "Content-Type: application/json" \
+  -d '{"user_id":"test","question":"Hello"}'
 ```
 
----
-
-## Deploy Railway (< 5 phút)
+## Scale với load balancer
 
 ```bash
-# Cài Railway CLI
-npm i -g @railway/cli
-
-# Login và deploy
-railway login
-railway init
-railway variables set OPENAI_API_KEY=sk-...
-railway variables set AGENT_API_KEY=your-secret-key
-railway up
-
-# Nhận public URL!
-railway domain
+docker compose up --build --scale agent=3
 ```
 
----
-
-## Deploy Render
-
-1. Push repo lên GitHub
-2. Render Dashboard → New → Blueprint
-3. Connect repo → Render đọc `render.yaml`
-4. Set secrets: `OPENAI_API_KEY`, `AGENT_API_KEY`
-5. Deploy → Nhận URL!
-
----
-
-## Kiểm Tra Production Readiness
+## Kiểm tra production readiness
 
 ```bash
+$env:PYTHONIOENCODING="utf-8"
 python check_production_ready.py
 ```
 
-Script này kiểm tra tất cả items trong checklist và báo cáo những gì còn thiếu.
+## Deploy cloud
+
+**Railway:**
+```bash
+npm i -g @railway/cli
+railway login
+railway init
+railway variables set AGENT_API_KEY=<secret>
+railway variables set REDIS_URL=<redis-url>
+railway up
+railway domain
+```
+
+**Render:** Push repo → Dashboard → New Blueprint → connect repo (đọc `render.yaml`).
+
+## Environment variables
+
+| Variable | Default | Mô tả |
+|----------|---------|-------|
+| `AGENT_API_KEY` | — | API key bắt buộc cho `/ask` |
+| `REDIS_URL` | `redis://localhost:6379/0` | Redis cho session, rate limit, budget |
+| `RATE_LIMIT_PER_MINUTE` | `10` | Giới hạn request/phút/user |
+| `MONTHLY_BUDGET_USD` | `10.0` | Budget LLM/tháng/user |
+| `ENVIRONMENT` | `development` | `production` bật validation secrets |

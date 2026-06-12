@@ -1,9 +1,14 @@
+# Render Blueprint — deploy from repo root
+# Dashboard: New → Blueprint → connect this repo
+
 services:
   - type: web
     name: ai-agent-production
     runtime: docker
     region: singapore
-    plan: starter
+    plan: free
+    dockerfilePath: ./06-lab-complete/Dockerfile
+    dockerContext: ./06-lab-complete
     healthCheckPath: /health
     autoDeploy: true
     envVars:
@@ -18,7 +23,10 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: REDIS_URL
-        sync: false
+        fromService:
+          type: redis
+          name: agent-cache
+          property: connectionString
       - key: MONTHLY_BUDGET_USD
         value: "10.0"
       - key: RATE_LIMIT_PER_MINUTE

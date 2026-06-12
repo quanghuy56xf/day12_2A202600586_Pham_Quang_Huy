@@ -106,4 +106,12 @@ Chúng tôi đã chuẩn bị đầy đủ tài liệu hướng dẫn:
 1. **Trước lab:** Đọc [CODE_LAB.md](CODE_LAB.md) để hiểu tổng quan
 2. **Trong lab:** Làm theo từng Part, tham khảo [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
 3. **Gặp lỗi:** Xem [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
-4. **Sau lab:** Nộp Part 6 Final Project để chấm điểm
+4. **Sau lab:** Nộp Part 6 Final Project — xem [DAY12_DELIVERY_CHECKLIST.md](DAY12_DELIVERY_CHECKLIST.md)
+
+## Nộp bài (Submission)
+
+| File | Mô tả |
+|------|-------|
+| [MISSION_ANSWERS.md](MISSION_ANSWERS.md) | Câu trả lời exercises Part 1–5 (40 điểm) |
+| [DEPLOYMENT.md](DEPLOYMENT.md) | URL deploy + lệnh test |
+| [06-lab-complete/](06-lab-complete/) | Final production agent (60 điểm) |
