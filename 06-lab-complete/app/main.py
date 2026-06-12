@@ -20,7 +20,8 @@ from app.auth import verify_api_key
 from app.config import settings
 from app.cost_guard import check_budget, estimate_cost, record_usage
 from app.rate_limiter import check_rate_limit
-from app.session import append_message, get_history, ping_redis
+from app.session import append_message, get_history
+from app.redis_client import ping_redis
 from utils.mock_llm import ask as llm_ask
 
 logging.basicConfig(
@@ -44,12 +45,13 @@ async def lifespan(app: FastAPI):
         "version": settings.app_version,
         "environment": settings.environment,
     }))
-    for attempt in range(1, 11):
+    for attempt in range(1, 31):
         if ping_redis():
             break
         logger.warning(json.dumps({
             "event": "redis_wait",
             "attempt": attempt,
+            "redis_url": settings.redis_url[:30] + "..." if settings.redis_url else "(empty)",
         }))
         time.sleep(2)
     else:

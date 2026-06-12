@@ -28,6 +28,11 @@ services:
           type: keyvalue
           name: agent-cache
           property: connectionString
+      - key: REDIS_HOSTPORT
+        fromService:
+          type: keyvalue
+          name: agent-cache
+          property: hostport
       - key: MONTHLY_BUDGET_USD
         value: "10.0"
       - key: RATE_LIMIT_PER_MINUTE

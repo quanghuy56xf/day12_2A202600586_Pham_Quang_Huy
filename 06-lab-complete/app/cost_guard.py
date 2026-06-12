@@ -1,22 +1,13 @@
 """Monthly budget guard — Redis-backed, per user."""
 from datetime import datetime
 
-import redis
 from fastapi import HTTPException
 
 from app.config import settings
+from app.redis_client import get_redis
 
 PRICE_PER_1K_INPUT_TOKENS = 0.00015
 PRICE_PER_1K_OUTPUT_TOKENS = 0.0006
-
-_redis: redis.Redis | None = None
-
-
-def get_redis() -> redis.Redis:
-    global _redis
-    if _redis is None:
-        _redis = redis.from_url(settings.redis_url, decode_responses=True)
-    return _redis
 
 
 def _budget_key(user_id: str) -> str:
@@ -32,7 +23,6 @@ def estimate_cost(input_tokens: int, output_tokens: int) -> float:
 
 
 def check_budget(user_id: str, estimated_cost: float = 0.0) -> None:
-    """Return if within budget; raise HTTP 402 if monthly limit exceeded."""
     r = get_redis()
     key = _budget_key(user_id)
     current = float(r.get(key) or 0)
@@ -50,7 +40,6 @@ def check_budget(user_id: str, estimated_cost: float = 0.0) -> None:
 
 
 def record_usage(user_id: str, input_tokens: int, output_tokens: int) -> float:
-    """Record token usage after LLM call."""
     cost = estimate_cost(input_tokens, output_tokens)
     r = get_redis()
     key = _budget_key(user_id)

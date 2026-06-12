@@ -30,18 +30,28 @@ class Settings:
         default_factory=lambda: float(os.getenv("MONTHLY_BUDGET_USD", "10.0"))
     )
 
-    redis_url: str = field(default_factory=lambda: os.getenv("REDIS_URL", "redis://localhost:6379/0"))
+    redis_url: str = field(default_factory=lambda: os.getenv("REDIS_URL", ""))
+    redis_hostport: str = field(default_factory=lambda: os.getenv("REDIS_HOSTPORT", ""))
     session_ttl_seconds: int = field(
         default_factory=lambda: int(os.getenv("SESSION_TTL_SECONDS", "3600"))
     )
 
     def validate(self):
         logger = logging.getLogger(__name__)
+
+        if not self.redis_url and self.redis_hostport:
+            self.redis_url = f"redis://{self.redis_hostport}/0"
+
+        if self.environment != "production" and not self.redis_url:
+            self.redis_url = "redis://localhost:6379/0"
+
         if self.environment == "production":
             if self.agent_api_key == "dev-key-change-me":
                 raise ValueError("AGENT_API_KEY must be set in production!")
             if self.jwt_secret == "dev-jwt-secret":
                 raise ValueError("JWT_SECRET must be set in production!")
+            if not self.redis_url:
+                raise ValueError("REDIS_URL or REDIS_HOSTPORT must be set in production!")
         if not self.openai_api_key:
             logger.warning("OPENAI_API_KEY not set — using mock LLM")
         return self

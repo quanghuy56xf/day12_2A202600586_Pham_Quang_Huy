@@ -1,26 +1,13 @@
 """Redis-based sliding window rate limiter."""
 import time
 
-import redis
 from fastapi import HTTPException
 
 from app.config import settings
-
-_redis: redis.Redis | None = None
-
-
-def get_redis() -> redis.Redis:
-    global _redis
-    if _redis is None:
-        _redis = redis.from_url(settings.redis_url, decode_responses=True)
-    return _redis
+from app.redis_client import get_redis
 
 
 def check_rate_limit(user_id: str) -> None:
-    """
-    Sliding window rate limit per user.
-    Raises HTTP 429 when limit exceeded.
-    """
     r = get_redis()
     now = time.time()
     window_start = now - 60
