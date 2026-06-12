@@ -2,100 +2,77 @@
 
 ## Public URL (Railway)
 
-**Railway:** _(cập nhật sau `railway domain`)_
+**Production URL:** https://ai-agent-production-production-0abb.up.railway.app
 
-Ví dụ: `https://ai-agent-production.up.railway.app`
+| Item | Value |
+|------|-------|
+| Platform | Railway |
+| Project | Day12-AI-Agent |
+| Service | ai-agent-production |
+| Redis | Redis (plugin) |
 
-## Platform
+## Environment Variables (Railway)
 
-| Môi trường | Platform |
-|-----------|----------|
-| Local dev | Docker Compose + Nginx |
-| Production | **Railway** (Docker + Redis plugin) |
-
-## Environment Variables
-
-| Variable | Giá trị |
-|----------|---------|
+| Variable | Value |
+|----------|-------|
 | `ENVIRONMENT` | `production` |
-| `AGENT_API_KEY` | secret (Railway Dashboard / CLI) |
-| `JWT_SECRET` | secret |
-| `REDIS_URL` | từ Redis plugin Railway |
+| `AGENT_API_KEY` | set on Railway Dashboard |
+| `JWT_SECRET` | set on Railway Dashboard |
+| `REDIS_URL` | `${{Redis.REDIS_URL}}` |
 | `RATE_LIMIT_PER_MINUTE` | `10` |
 | `MONTHLY_BUDGET_USD` | `10.0` |
-| `PORT` | Railway inject tự động |
-
-## Deploy Railway
-
-### Cách 1 — GitHub (khuyến nghị)
-
-1. [Railway Dashboard](https://railway.app) → **New Project** → **Deploy from GitHub repo**
-2. Chọn repo: `quanghuy56xf/day12_2A202600586_Pham_Quang_Huy`
-3. **Settings → Root Directory:** `06-lab-complete`
-4. **New → Database → Add Redis** (link vào service agent)
-5. Service agent → **Variables:**
-   - `ENVIRONMENT=production`
-   - `AGENT_API_KEY=<your-secret-key>`
-   - `JWT_SECRET=<your-jwt-secret>`
-   - `REDIS_URL=${{Redis.REDIS_URL}}` (hoặc reference Redis service)
-   - `RATE_LIMIT_PER_MINUTE=10`
-   - `MONTHLY_BUDGET_USD=10.0`
-6. **Deploy** → copy public URL
-
-### Cách 2 — Railway CLI
-
-```bash
-npm i -g @railway/cli
-cd 06-lab-complete
-railway login
-railway init
-railway add --plugin redis
-railway variables set ENVIRONMENT=production
-railway variables set AGENT_API_KEY=your-secret-key
-railway variables set JWT_SECRET=your-jwt-secret
-railway variables set RATE_LIMIT_PER_MINUTE=10
-railway variables set MONTHLY_BUDGET_USD=10.0
-# Link REDIS_URL từ Redis service trong Dashboard hoặc:
-# railway variables set REDIS_URL=<redis-url-from-dashboard>
-railway up
-railway domain
-```
 
 ## Test Commands
 
-Thay `YOUR_URL` và `YOUR_KEY` sau khi deploy:
+### Health Check
 
 ```bash
-curl https://YOUR_URL/health
-curl https://YOUR_URL/ready
-
-curl -X POST https://YOUR_URL/ask \
-  -H "Content-Type: application/json" \
-  -d '{"user_id":"test","question":"Hello"}'
-# Expected: 401
-
-curl -X POST https://YOUR_URL/ask \
-  -H "X-API-Key: YOUR_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"user_id":"test","question":"Hello"}'
-# Expected: 200
+curl https://ai-agent-production-production-0abb.up.railway.app/health
+# Expected: {"status":"ok",...}
 ```
 
-## Screenshots
+### Readiness Check
 
-| File | Mô tả |
-|------|-------|
-| [screenshots/docker-compose-running.png](screenshots/docker-compose-running.png) | Docker local |
-| [screenshots/health-check.png](screenshots/health-check.png) | Health check |
-| [screenshots/auth-test.png](screenshots/auth-test.png) | Auth test |
-| [screenshots/rate-limit-test.png](screenshots/rate-limit-test.png) | Rate limit |
-| [screenshots/production-ready-check.png](screenshots/production-ready-check.png) | 20/20 checks |
-| [screenshots/cloud-dashboard.png](screenshots/cloud-dashboard.png) | Railway dashboard |
+```bash
+curl https://ai-agent-production-production-0abb.up.railway.app/ready
+# Expected: {"ready":true,"redis":"connected"}
+```
 
-## Verified (Local)
+### Authentication required (401)
+
+```bash
+curl -X POST https://ai-agent-production-production-0abb.up.railway.app/ask \
+  -H "Content-Type: application/json" \
+  -d '{"user_id":"test","question":"Hello"}'
+```
+
+### API Test (with authentication)
+
+```bash
+curl -X POST https://ai-agent-production-production-0abb.up.railway.app/ask \
+  -H "X-API-Key: YOUR_RAILWAY_AGENT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"user_id":"test","question":"Hello"}'
+```
+
+> Lấy `AGENT_API_KEY` từ Railway Dashboard → service **ai-agent-production** → Variables.
+
+## Verified (Railway — 2026-06-12)
 
 ```
-check_production_ready.py: 20/20
-Docker image: 307 MB
-railway.toml: configured
+GET /health  → HTTP 200
+GET /ready   → HTTP 200 (redis connected)
+POST /ask    → HTTP 401 (no key)
+POST /ask    → HTTP 200 (with X-API-Key)
+```
+
+## Railway Dashboard
+
+https://railway.com/project/9ea5b4b4-dc09-476f-b18e-e2bdc64d0800
+
+## Redeploy
+
+```bash
+cd 06-lab-complete
+railway up -y -d
 ```
