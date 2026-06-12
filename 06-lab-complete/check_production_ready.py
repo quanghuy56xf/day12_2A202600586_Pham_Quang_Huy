@@ -48,9 +48,8 @@ def run_checks():
                          os.path.exists(os.path.join(base, ".env.example"))))
     results.append(check("requirements.txt exists",
                          os.path.exists(os.path.join(base, "requirements.txt"))))
-    results.append(check("railway.toml or render.yaml exists",
-                         os.path.exists(os.path.join(base, "railway.toml")) or
-                         os.path.exists(os.path.join(base, "render.yaml"))))
+    results.append(check("railway.toml exists",
+                         os.path.exists(os.path.join(base, "railway.toml"))))
 
     # ── Security ──────────────────────────────────���
     print("\n[Security]")

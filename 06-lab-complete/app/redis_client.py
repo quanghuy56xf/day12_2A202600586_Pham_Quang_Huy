@@ -61,7 +61,7 @@ def _mask_url(url: str) -> str:
 def ping_redis() -> bool:
     url = settings.redis_url
     if not url:
-        logger.error("REDIS_URL is empty — check Render env / fromService link")
+        logger.error("REDIS_URL is empty — set REDIS_URL from Railway Redis plugin")
         return False
 
     candidates = [url]

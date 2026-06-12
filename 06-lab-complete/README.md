@@ -17,8 +17,7 @@ Production-ready AI agent kết hợp tất cả concepts Day 12.
 ├── Dockerfile            # Multi-stage, non-root, HEALTHCHECK
 ├── docker-compose.yml    # agent + redis + nginx
 ├── nginx.conf
-├── railway.toml
-├── render.yaml
+├── railway.toml        # Deploy Railway
 ├── .env.example
 └── check_production_ready.py
 ```
@@ -67,20 +66,23 @@ $env:PYTHONIOENCODING="utf-8"
 python check_production_ready.py
 ```
 
-## Deploy cloud
+## Deploy Railway
 
-**Railway:**
+Root Directory trên Dashboard: **`06-lab-complete`**
+
 ```bash
 npm i -g @railway/cli
+cd 06-lab-complete
 railway login
 railway init
+railway add --plugin redis
+railway variables set ENVIRONMENT=production
 railway variables set AGENT_API_KEY=<secret>
-railway variables set REDIS_URL=<redis-url>
 railway up
 railway domain
 ```
 
-**Render:** Push repo → Dashboard → New Blueprint → connect repo (đọc `render.yaml`).
+Chi tiết: [DEPLOYMENT.md](../DEPLOYMENT.md)
 
 ## Environment variables
 

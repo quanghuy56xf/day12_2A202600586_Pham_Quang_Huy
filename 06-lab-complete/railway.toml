@@ -1,9 +1,18 @@
 [build]
 builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 2"
+startCommand = "sh -c 'exec uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1'"
 healthcheckPath = "/health"
-healthcheckTimeout = 30
+healthcheckTimeout = 60
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 3
+
+# Environment variables (Railway Dashboard hoặc CLI):
+#   ENVIRONMENT=production
+#   AGENT_API_KEY=<secret>
+#   JWT_SECRET=<secret>
+#   REDIS_URL=${{Redis.REDIS_URL}}   # sau khi add Redis plugin
+#   RATE_LIMIT_PER_MINUTE=10
+#   MONTHLY_BUDGET_USD=10.0

@@ -193,15 +193,16 @@ def main() -> int:
     else:
         files.append(
             render_png(
-                "Cloud Deploy — Render Blueprint Ready",
+                "Cloud Deploy — Railway Ready",
                 "\n".join([
-                    "Platform: Render (Blueprint)",
-                    "File: 06-lab-complete/render.yaml + render.yaml (root)",
+                    "Platform: Railway",
+                    "Config: 06-lab-complete/railway.toml",
+                    "Root Directory: 06-lab-complete",
                     "Steps:",
-                    "  1. Push repo to GitHub",
-                    "  2. Render Dashboard → New Blueprint",
-                    "  3. Connect repo → Deploy",
-                    "  4. Set REDIS_URL from Redis add-on",
+                    "  1. Railway Dashboard → Deploy from GitHub",
+                    "  2. Set root dir → 06-lab-complete",
+                    "  3. Add Redis plugin + env vars",
+                    "  4. Deploy → railway domain",
                 ]),
                 "cloud-dashboard.png",
             )
