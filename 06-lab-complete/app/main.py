@@ -44,7 +44,15 @@ async def lifespan(app: FastAPI):
         "version": settings.app_version,
         "environment": settings.environment,
     }))
-    if not ping_redis():
+    for attempt in range(1, 11):
+        if ping_redis():
+            break
+        logger.warning(json.dumps({
+            "event": "redis_wait",
+            "attempt": attempt,
+        }))
+        time.sleep(2)
+    else:
         logger.error(json.dumps({"event": "redis_unavailable"}))
         raise RuntimeError("Redis is required for stateless operation")
     _is_ready = True
